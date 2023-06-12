@@ -1,9 +1,9 @@
 import 'package:calc/calc.dart';
 import 'package:fake_sensor/CMqtt.dart';
 import 'package:fake_sensor/LoginPage.dart';
+import 'package:fake_sensor/MqttPage.dart';
 import 'package:fake_sensor/SecureStorage.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
 void main() {
@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
           })
         });
     CMqtt.instance.connect();
-    sendToMqtt();
+    CMqtt.instance.send();
   }
 
   @override
@@ -79,6 +79,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     });
                   },
                   child: const Text('Logout')),
+            TextButton(
+                onPressed: () => {
+                  Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) {
+                    return const MqttPage();
+                  }))
+                },
+                child: const Text('Mqtt settings')),
             ValueListenableBuilder(
               valueListenable: CMqtt.instance.isConnected,
               builder: (BuildContext context, bool value, Widget? child) {
@@ -103,44 +110,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   return const Text("Not connected to MQTT");
                 }
               },
-            )
+            ),
+
           ],
         ),
       ),
     );
-  }
-}
-
-sendToMqtt() async {
-  double lastTemp = 25;
-
-  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    return;
-  }
-  LocationPermission permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      return;
-    }
-  }
-  if (permission == LocationPermission.deniedForever) {
-    return;
-  }
-
-  while (true) {
-    if (CMqtt.instance.isConnected.value) {
-      var position = await Geolocator.getCurrentPosition();
-
-      MqttClientPayloadBuilder bdl = MqttClientPayloadBuilder();
-      var dist = NormalDistribution(mean: lastTemp, variance: 0.1);
-      lastTemp = dist.sample();
-      var currentTime = DateTime.now().microsecondsSinceEpoch * 1000;
-      bdl.addString('temperature lng=${position.longitude},lat=${position.latitude},value=$lastTemp $currentTime');
-      CMqtt.instance.client.publishMessage("apolline/temperature", MqttQos.atLeastOnce, bdl.payload!);
-      print("Sent $lastTemp at $currentTime");
-    }
-    await Future.delayed(const Duration(seconds: 1));
   }
 }
