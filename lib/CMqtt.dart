@@ -13,7 +13,7 @@ class CMqtt {
   ValueNotifier<bool> isConnected = ValueNotifier(false);
   bool sending = false;
 
-  CMqtt._() : client = MqttServerClient.withPort("10.0.2.2", "fake-app-1", 8883) {
+  CMqtt._() : client = MqttServerClient.withPort("10.0.2.2", "", 8883) {
     client.secure = true;
     client.onBadCertificate = (Object certificate) => true;
     client.keepAlivePeriod = 20;
@@ -25,11 +25,12 @@ class CMqtt {
 
   void connect(BuildContext context) async {
     String host = await SecureStorage.instance.getMqttHost() ?? '10.0.2.2';
+    String token = await SecureStorage.instance.getToken() ?? '';
     int port = await SecureStorage.instance.getMqttPort() ?? 8883;
     bool secure = await SecureStorage.instance.getMqttSecure() ?? true;
 
 
-    client = MqttServerClient.withPort(host, "fake-app-1", port);
+    client = MqttServerClient.withPort(host, token, port);
     client.secure = secure;
     client.onBadCertificate = (Object certificate) => true;
     client.keepAlivePeriod = 20;
@@ -39,7 +40,7 @@ class CMqtt {
     client.onDisconnected = onDisconnected;
 
 
-    final token = await SecureStorage.instance.getToken();
+    // final token = await SecureStorage.instance.getToken();
     String dbg = "Host: $host\nPort: $port\nSecure: $secure\nToken: $token\n";
     // showAlertDialog(context, "mqtt connect", dbg);
 
@@ -85,7 +86,7 @@ class CMqtt {
         var position = await Geolocator.getCurrentPosition();
 
         MqttClientPayloadBuilder bdl = MqttClientPayloadBuilder();
-        var dist = NormalDistribution(mean: lastTemp, variance: 0.1);
+        var dist = NormalDistribution(mean: lastTemp, variance: 0.001);
         lastTemp = dist.sample();
         var currentTime = DateTime.now().microsecondsSinceEpoch * 1000;
         bdl.addString('temperature lng=${position.longitude},lat=${position.latitude},value=$lastTemp $currentTime');
