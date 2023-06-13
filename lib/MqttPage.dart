@@ -1,4 +1,5 @@
 import 'package:fake_sensor/CMqtt.dart';
+import 'package:fake_sensor/DebugDialog.dart';
 import 'package:fake_sensor/SecureStorage.dart';
 import 'package:flutter/material.dart';
 
@@ -82,9 +83,13 @@ class _MqttPage extends State<MqttPage> {
     if (host.text != "" && port.text != "") {
       var _port = int.parse(port.text);
       CMqtt.instance.client.disconnect();
-      await SecureStorage.instance.setMqttHost(host.text);
-      await SecureStorage.instance.setMqttPort(_port);
-      await SecureStorage.instance.setMqttSecure(secure);
+      try {
+        await SecureStorage.instance.setMqttHost(host.text);
+        await SecureStorage.instance.setMqttPort(_port);
+        await SecureStorage.instance.setMqttSecure(secure);
+      } catch (e) {
+        showAlertDialog(context, "Catch error", e.toString());
+      }
       CMqtt.instance.connect(context);
       Navigator.push(context, MaterialPageRoute(
         builder: (BuildContext context) {
