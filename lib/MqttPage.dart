@@ -17,7 +17,24 @@ class _MqttPage extends State<MqttPage> {
   TextEditingController port = TextEditingController();
   bool secure = true;
 
-  String loginError = "";
+  @override
+  void initState() {
+    SecureStorage.instance.getMqttHost().then((value) => {
+          setState(() {
+            host.text = value ?? '';
+          })
+        });
+    SecureStorage.instance.getMqttPort().then((value) => {
+          setState(() {
+            port.text = value.toString() ?? '';
+          })
+        });
+    SecureStorage.instance.getMqttSecure().then((value) => {
+          setState(() {
+            secure = value ?? true;
+          })
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +88,8 @@ class _MqttPage extends State<MqttPage> {
                 title: const Text("Secure"),
               ),
               TextButton(
-                  onPressed: () => changeMqttServer(context), child: const Text('Save'))
+                  onPressed: () => changeMqttServer(context),
+                  child: const Text('Save'))
             ],
           ),
         ),
@@ -83,19 +101,20 @@ class _MqttPage extends State<MqttPage> {
     if (host.text != "" && port.text != "") {
       var _port = int.parse(port.text);
       CMqtt.instance.client.disconnect();
-      try {
-        await SecureStorage.instance.setMqttHost(host.text);
-        await SecureStorage.instance.setMqttPort(_port);
-        await SecureStorage.instance.setMqttSecure(secure);
-      } catch (e) {
-        showAlertDialog(context, "Catch error", e.toString());
-      }
+
+      await SecureStorage.instance.setMqttHost(host.text);
+      await SecureStorage.instance.setMqttPort(_port);
+      await SecureStorage.instance.setMqttSecure(secure);
+
       CMqtt.instance.connect(context);
-      Navigator.push(context, MaterialPageRoute(
-        builder: (BuildContext context) {
-          return const MyHomePage();
-        },
-      ),);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) {
+            return const MyHomePage();
+          },
+        ),
+      );
     }
   }
 }

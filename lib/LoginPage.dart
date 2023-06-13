@@ -94,7 +94,7 @@ class _LoginPage extends State<LoginPage> {
         body: datas,
       );
 
-      showAlertDialog(context, "login debug", request.body);
+      //showAlertDialog(context, "login debug", request.body);
       var response = jsonDecode(request.body);
       if (response['Ok'] == true) {
         loginError = "";

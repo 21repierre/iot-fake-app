@@ -41,7 +41,7 @@ class CMqtt {
 
     final token = await SecureStorage.instance.getToken();
     String dbg = "Host: $host\nPort: $port\nSecure: $secure\nToken: $token\n";
-    showAlertDialog(context, "mqtt connect", dbg);
+    // showAlertDialog(context, "mqtt connect", dbg);
 
     if (token == null || isConnected.value) return;
 
