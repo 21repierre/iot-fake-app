@@ -16,6 +16,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPage extends State<LoginPage> {
+  TextEditingController baseUrl = TextEditingController(text: "http://10.0.2.2:5000");
   TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
 
@@ -51,6 +52,12 @@ class _LoginPage extends State<LoginPage> {
           child: Column(
             children: [
               TextField(
+                controller: baseUrl,
+                decoration: const InputDecoration(
+                  labelText: 'Base url (no end /)',
+                ),
+              ),
+              TextField(
                 controller: username,
                 decoration: InputDecoration(
                   labelText: 'Username/Email',
@@ -75,12 +82,12 @@ class _LoginPage extends State<LoginPage> {
   }
 
   Future<void> login(BuildContext context) async {
-    if (username.text != '' && password.text != '') {
+    if (username.text != '' && password.text != '' && baseUrl.text != '') {
       HashMap<String, String> datas = HashMap();
       datas.putIfAbsent("username", () => username.text);
       datas.putIfAbsent("password", () => password.text);
       var request = await http.post(
-        Uri.parse('http://10.0.2.2:5000/auth/signin'),
+        Uri.parse('${baseUrl.text}/auth/signin'),
         headers: <String, String>{
         },
         body: datas,
