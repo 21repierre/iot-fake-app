@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:fake_sensor/DebugDialog.dart';
 import 'package:fake_sensor/SecureStorage.dart';
 import 'package:flutter/material.dart';
 
@@ -53,7 +54,7 @@ class _LoginPage extends State<LoginPage> {
             children: [
               TextField(
                 controller: baseUrl,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Base url (no end /)',
                 ),
               ),
@@ -93,6 +94,7 @@ class _LoginPage extends State<LoginPage> {
         body: datas,
       );
 
+      showAlertDialog(context, "login debug", request.body);
       var response = jsonDecode(request.body);
       if (response['Ok'] == true) {
         loginError = "";
@@ -104,6 +106,7 @@ class _LoginPage extends State<LoginPage> {
         ),);
       } else {
         loginError = response['error'];
+        print("Login errir: $loginError");
       }
 
     }

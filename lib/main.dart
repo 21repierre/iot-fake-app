@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
             token = value;
           })
         });
-    CMqtt.instance.connect();
+    CMqtt.instance.connect(context);
     CMqtt.instance.send();
   }
 

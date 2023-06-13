@@ -1,4 +1,5 @@
 import 'package:calc/calc.dart';
+import 'package:fake_sensor/DebugDialog.dart';
 import 'package:fake_sensor/SecureStorage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mqtt_client/mqtt_client.dart';
@@ -22,10 +23,12 @@ class CMqtt {
     client.onDisconnected = onDisconnected;
   }
 
-  void connect() async {
+  void connect(BuildContext context) async {
     String host = await SecureStorage.instance.getMqttHost() ?? '10.0.2.2';
     int port = await SecureStorage.instance.getMqttPort() ?? 8883;
     bool secure = await SecureStorage.instance.getMqttSecure() ?? true;
+
+
     client = MqttServerClient.withPort(host, "fake-app-1", port);
     client.secure = secure;
     client.onBadCertificate = (Object certificate) => true;
@@ -35,7 +38,11 @@ class CMqtt {
     client.onConnected = onConnected;
     client.onDisconnected = onDisconnected;
 
+
     final token = await SecureStorage.instance.getToken();
+    String dbg = "Host: $host\nPort: $port\nSecure: $secure\nToken: $token\n";
+    showAlertDialog(context, "mqtt connect", dbg);
+
     if (token == null || isConnected.value) return;
 
     final connectionMessage = MqttConnectMessage().authenticateAs(token, token);

@@ -85,7 +85,7 @@ class _MqttPage extends State<MqttPage> {
       await SecureStorage.instance.setMqttHost(host.text);
       await SecureStorage.instance.setMqttPort(_port);
       await SecureStorage.instance.setMqttSecure(secure);
-      CMqtt.instance.connect();
+      CMqtt.instance.connect(context);
       Navigator.push(context, MaterialPageRoute(
         builder: (BuildContext context) {
           return const MyHomePage();
