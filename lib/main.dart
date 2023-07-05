@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             lastTemp = dist.sample();
                             var currentTime = DateTime.now().microsecondsSinceEpoch * 1000;
                             bdl.addString('temperature lng=50.6113,lat=3.13487,value=$lastTemp $currentTime');
-                            CMqtt.instance.client.publishMessage("apolline/temperature", MqttQos.atLeastOnce, bdl.payload!);
+                            CMqtt.instance.client.publishMessage("icare/temperature", MqttQos.atLeastOnce, bdl.payload!);
                             print("Sent $lastTemp at $currentTime");
                           },
                           child: const Text("Send fake temperature"))

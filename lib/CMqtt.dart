@@ -46,7 +46,7 @@ class CMqtt {
 
     if (token == null || isConnected.value) return;
 
-    final connectionMessage = MqttConnectMessage().authenticateAs(token, token);
+    final connectionMessage = MqttConnectMessage().authenticateAs(token, token).withClientIdentifier(token);
     client.connectionMessage = connectionMessage;
     await client.connect();
   }
@@ -58,6 +58,7 @@ class CMqtt {
 
   void onDisconnected() {
     isConnected.value = false;
+    sending = false;
     print("Disconnected from MQTT server.");
   }
 
@@ -81,7 +82,7 @@ class CMqtt {
     }
     sending = true;
 
-    while (true) {
+    while (sending) {
       if (CMqtt.instance.isConnected.value) {
         var position = await Geolocator.getCurrentPosition();
 
@@ -90,7 +91,7 @@ class CMqtt {
         lastTemp = dist.sample();
         var currentTime = DateTime.now().microsecondsSinceEpoch * 1000;
         bdl.addString('temperature lng=${position.longitude},lat=${position.latitude},value=$lastTemp $currentTime');
-        CMqtt.instance.client.publishMessage("apolline/temperature", MqttQos.atLeastOnce, bdl.payload!);
+        CMqtt.instance.client.publishMessage("icare/temperature", MqttQos.atLeastOnce, bdl.payload!);
         print("Sent $lastTemp at $currentTime");
       }
       await Future.delayed(const Duration(milliseconds: 250));
